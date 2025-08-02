@@ -194,16 +194,16 @@ function setupResponseHandling() {
     if (type === "accept") {
       content = `
         <div class="text-center">
-          <div class="text-8xl mb-6">🎉</div>
-          <h2 class="text-5xl font-bold text-white mb-6 drop-shadow-lg">Tuyệt vời!</h2>
-          <p class="text-2xl text-white mb-8 drop-shadow-lg">
+          <div class="text-6xl md:text-8xl mb-6">🎉</div>
+          <h2 class="text-3xl md:text-5xl font-bold text-white mb-6 drop-shadow-lg">Tuyệt vời!</h2>
+          <p class="text-lg md:text-2xl text-white mb-8 drop-shadow-lg px-4">
             Cảm ơn bạn đã cho mình cơ hội để đến gần hơn một chút.
 Mình tin rằng… đây không chỉ là một lời đồng ý, mà là khởi đầu cho điều gì đó thật đẹp 💗
 Mình rất mong được đồng hành cùng bạn – dù là từng bước nhỏ thôi cũng được.
 
 
           </p>
-          <button class="glass-button text-white px-8 py-4 text-lg font-medium whitespace-nowrap relative z-10" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 0, 128, 0.4));">
+          <button class="glass-button text-white px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium relative z-10" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 0, 128, 0.4));">
             Cùng bắt đầu nhé 💕
           </button>
         </div>
@@ -211,14 +211,14 @@ Mình rất mong được đồng hành cùng bạn – dù là từng bước n
     } else {
       content = `
         <div class="text-center">
-          <div class="text-8xl mb-6">🤗</div>
-          <h2 class="text-5xl font-bold text-white mb-6 drop-shadow-lg">Không sao đâu!</h2>
-          <p class="text-2xl text-white mb-8 drop-shadow-lg">
+          <div class="text-6xl md:text-8xl mb-6">🤗</div>
+          <h2 class="text-3xl md:text-5xl font-bold text-white mb-6 drop-shadow-lg">Không sao đâu!</h2>
+          <p class="text-lg md:text-2xl text-white mb-8 drop-shadow-lg px-4">
             Cảm ơn bạn vì sự chân thành.
 Mình trân trọng cảm xúc của bạn và vẫn rất mong có thể làm bạn tốt của nhau 😊
 Đôi khi không cần là một cái kết lãng mạn, mà là một tình bạn thật ấm áp.
           </p>
-          <button class="glass-button text-white px-8 py-4 text-lg font-medium whitespace-nowrap relative z-10" style="background: linear-gradient(135deg, rgba(255, 192, 203, 0.3), rgba(255, 0, 128, 0.4));">
+          <button class="glass-button text-white px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium relative z-10" style="background: linear-gradient(135deg, rgba(255, 192, 203, 0.3), rgba(255, 0, 128, 0.4));">
             Làm bạn với nhau nhé 💛
           </button>
         </div>
