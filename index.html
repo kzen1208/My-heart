@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3D Heart Confession</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#FF4B7D",
+              secondary: "#FF8FA3",
+            },
+            borderRadius: {
+              none: "0px",
+              sm: "4px",
+              DEFAULT: "8px",
+              md: "12px",
+              lg: "16px",
+              xl: "20px",
+              "2xl": "24px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "8px",
+            },
+            fontFamily: {
+              poppins: ["Poppins", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="gradient-bg min-h-screen">
+    <audio id="background-music" loop>
+      <source
+        src="LỄ ĐƯỜNG của Hải Long & Salim - KAI ĐINH - Official MV.mp3"
+        type="audio/mpeg"
+      />
+    </audio>
+    <div class="container mx-auto px-4">
+      <header class="flex items-center justify-between py-6">
+        <div class="flex items-center space-x-3">
+          <div
+            class="w-10 h-10 bg-black rounded-lg flex items-center justify-center"
+          >
+            <i class="ri-heart-fill text-white text-xl"></i>
+          </div>
+        </div>
+      </header>
+      <main class="relative">
+        <section
+          id="hero-section"
+          class="min-h-screen flex items-center justify-center relative overflow-hidden"
+        >
+          <div class="absolute inset-0 pointer-events-none">
+            <div
+              class="floating-heart absolute top-20 left-20 text-pink-300 text-2xl"
+            >
+              💖
+            </div>
+            <div
+              class="floating-heart absolute top-32 right-32 text-pink-200 text-lg"
+            >
+              💕
+            </div>
+            <div
+              class="floating-heart absolute bottom-40 left-40 text-pink-300 text-xl"
+            >
+              💗
+            </div>
+            <div
+              class="floating-heart absolute bottom-20 right-20 text-pink-200 text-2xl"
+            >
+              💝
+            </div>
+          </div>
+          <div
+            class="fixed top-8 left-0 right-0 flex flex-col items-center z-50 pointer-events-none"
+          >
+            <div class="mb-8">
+              <h1 class="main-title">Trái Tim Có Điều Muốn Nói<br /></h1>
+              <p class="main-subtitle">Một Câu Hỏi Không Dám Hỏi</p>
+            </div>
+          </div>
+          <div
+            id="heart-container"
+            class="fixed inset-0 w-full h-full cursor-pointer z-0"
+          >
+            <canvas id="heart-canvas" class="w-full h-full"></canvas>
+          </div>
+          <div
+            id="explosion-container"
+            class="fixed inset-0 pointer-events-none z-20"
+          ></div>
+        </section>
+        <section
+          id="confession-section"
+          class="confession-section min-h-screen flex items-center justify-center relative z-40"
+        >
+          <div class="text-center max-w-2xl mx-auto px-4">
+            <div id="first-message" class="mb-12">
+              <h2
+                class="text-5xl font-bold text-white mb-6 fade-in drop-shadow-lg"
+              >
+                MÌNH THÍCH BẠN 💖
+              </h2>
+            </div>
+            <div
+              id="second-message"
+              class="opacity-0 transform translate-y-10 transition-all duration-1000"
+            >
+              <p
+                class="text-2xl text-white mb-12 leading-relaxed drop-shadow-lg"
+              >
+                Bạn có cho phép mình bước vào tim bạn không?
+              </p>
+              <div
+                class="flex flex-col sm:flex-row gap-6 justify-center items-center"
+              >
+                <button
+                  id="accept-btn"
+                  class="glass-button text-white px-8 py-4 text-lg font-medium whitespace-nowrap flex items-center gap-3 relative z-10"
+                  style="
+                    background: linear-gradient(
+                      135deg,
+                      rgba(246, 175, 220, 0.4),
+                      rgba(255, 164, 210, 0.4)
+                    );
+                  "
+                >
+                  <i class="ri-check-line text-xl"></i>
+                  Có, mình đồng ý💕
+                </button>
+                <button
+                  id="decline-btn"
+                  class="glass-button text-white px-8 py-4 text-lg font-medium whitespace-nowrap flex items-center gap-3 relative z-10"
+                  style="
+                    background: linear-gradient(
+                      135deg,
+                      rgba(255, 192, 203, 0.3),
+                      rgba(255, 182, 193, 0.3)
+                    );
+                  "
+                >
+                  <i class="ri-close-line text-xl"></i>
+                  Xin lỗi, mình không thể
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section
+          id="response-section"
+          class="min-h-screen flex items-center justify-center opacity-0 transform translate-y-10 transition-all duration-1000"
+        >
+          <div class="text-center max-w-2xl mx-auto px-4">
+            <div id="response-content"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
