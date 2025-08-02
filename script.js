@@ -117,7 +117,7 @@ function setupInteractions() {
   const confessionSection = document.getElementById("confession-section");
   const secondMessage = document.getElementById("second-message");
 
-  heartContainer.addEventListener("click", function () {
+  function handleHeartInteraction() {
     if (!isAnimating) {
       isAnimating = true;
 
@@ -135,6 +135,13 @@ function setupInteractions() {
         isAnimating = false;
       }, 800);
     }
+  }
+
+  // Add both click and touch events for mobile compatibility
+  heartContainer.addEventListener("click", handleHeartInteraction);
+  heartContainer.addEventListener("touchstart", function(e) {
+    e.preventDefault();
+    handleHeartInteraction();
   });
 
   // Resize handler
