@@ -66,6 +66,16 @@ function initThreeJS() {
   controls.maxDistance = 50;
   controls.minDistance = 1;
 
+  // Detect user interaction
+  controls.addEventListener("start", () => {
+    userInteracting = true;
+  });
+  controls.addEventListener("end", () => {
+    setTimeout(() => {
+      userInteracting = false;
+    }, 2000); // Resume auto movement after 2s
+  });
+
   // Load GLB model
   const loader = new THREE.GLTFLoader();
   loader.load(
@@ -100,11 +110,30 @@ function initThreeJS() {
   );
 }
 
+let cameraTime = 0;
+let userInteracting = false;
+
 function animate() {
   requestAnimationFrame(animate);
 
-  if (heartModel && !isAnimating) {
-    heartModel.rotation.y += 0.01;
+  if (heartModel) {
+    if (!isAnimating) {
+      heartModel.rotation.y += 0.01;
+
+      // Auto camera movement only when user is not interacting
+      if (!userInteracting) {
+        cameraTime += 0.005;
+        const radius = 8;
+        const height = Math.sin(cameraTime * 0.7) * 3;
+        const angle = cameraTime * 0.3;
+
+        camera.position.x = Math.cos(angle) * radius;
+        camera.position.z = Math.sin(angle) * radius;
+        camera.position.y = height;
+
+        camera.lookAt(0, 0, 0);
+      }
+    }
   }
 
   controls.update();
@@ -139,10 +168,14 @@ function setupInteractions() {
 
   // Add both click and touch events for mobile compatibility
   heartContainer.addEventListener("click", handleHeartInteraction);
-  heartContainer.addEventListener("touchstart", function(e) {
-    e.preventDefault();
-    handleHeartInteraction();
-  });
+  heartContainer.addEventListener(
+    "touchend",
+    function (e) {
+      e.preventDefault();
+      handleHeartInteraction();
+    },
+    { passive: false }
+  );
 
   // Resize handler
   window.addEventListener("resize", function () {
@@ -188,25 +221,136 @@ function setupResponseHandling() {
   const responseSection = document.getElementById("response-section");
   const responseContent = document.getElementById("response-content");
 
+  let declineAttempts = 0;
+  let isDeclineDisabled = false;
+
+  // Make accept button glow
+  acceptBtn.classList.add("accept-glow");
+
   acceptBtn.addEventListener("click", function () {
     showResponse("accept");
   });
 
-  declineBtn.addEventListener("click", function () {
-    showResponse("decline");
+  acceptBtn.addEventListener(
+    "touchend",
+    function (e) {
+      e.preventDefault();
+      showResponse("accept");
+    },
+    { passive: false }
+  );
+
+  // Add hover effects for decline button
+  declineBtn.addEventListener("mouseenter", function () {
+    if (declineAttempts < 8) {
+      const animations = ["decline-dodge", "decline-shrink", "decline-fade"];
+      const randomAnimation =
+        animations[Math.floor(Math.random() * animations.length)];
+      declineBtn.classList.add(randomAnimation);
+
+      setTimeout(() => {
+        declineBtn.classList.remove(randomAnimation);
+      }, 500);
+    }
   });
+
+  function handleDeclineClick(e) {
+    declineAttempts++;
+
+    if (declineAttempts <= 8) {
+      e.preventDefault();
+
+      // Different reactions based on attempts
+      if (declineAttempts === 1) {
+        declineBtn.classList.add("decline-shake");
+        declineBtn.innerHTML =
+          '<i class="ri-close-line text-xl"></i>Bạn chắc chưa? 🥺';
+        setTimeout(() => declineBtn.classList.remove("decline-shake"), 500);
+      } else if (declineAttempts === 2) {
+        declineBtn.classList.add("decline-fade");
+        declineBtn.innerHTML =
+          '<i class="ri-close-line text-xl"></i>Thử suy nghĩ lại nhé 💔';
+        declineBtn.style.transform = "scale(0.9)";
+        setTimeout(() => declineBtn.classList.remove("decline-fade"), 500);
+      } else if (declineAttempts === 3) {
+        declineBtn.classList.add("decline-shrink");
+        declineBtn.innerHTML =
+          '<i class="ri-close-line text-xl"></i>Mình buồn quá... 😢';
+        declineBtn.style.transform = "scale(0.8)";
+        declineBtn.style.opacity = "0.7";
+        setTimeout(() => declineBtn.classList.remove("decline-shrink"), 300);
+      } else if (declineAttempts === 4) {
+        declineBtn.classList.add("decline-dodge");
+        declineBtn.innerHTML =
+          '<i class="ri-close-line text-xl"></i>Đừng vậy mà... 🥹';
+        declineBtn.style.transform = "scale(0.75)";
+        declineBtn.style.opacity = "0.6";
+        setTimeout(() => declineBtn.classList.remove("decline-dodge"), 500);
+      } else if (declineAttempts === 5) {
+        declineBtn.classList.add("decline-shake");
+        declineBtn.innerHTML =
+          '<i class="ri-close-line text-xl"></i>Cho mình cơ hội đi 🙏';
+        declineBtn.style.transform = "scale(0.7)";
+        declineBtn.style.opacity = "0.5";
+        setTimeout(() => declineBtn.classList.remove("decline-shake"), 500);
+      } else if (declineAttempts === 6) {
+        declineBtn.classList.add("decline-fade");
+        declineBtn.innerHTML =
+          '<i class="ri-close-line text-xl"></i>Mình hứa sẽ tốt... 😭';
+        declineBtn.style.transform = "scale(0.65)";
+        declineBtn.style.opacity = "0.4";
+        setTimeout(() => declineBtn.classList.remove("decline-fade"), 500);
+      } else if (declineAttempts === 7) {
+        declineBtn.classList.add("decline-shrink");
+        declineBtn.innerHTML =
+          '<i class="ri-close-line text-xl"></i>Lần cuối rồi... 💔';
+        declineBtn.style.transform = "scale(0.6)";
+        declineBtn.style.opacity = "0.3";
+        setTimeout(() => declineBtn.classList.remove("decline-shrink"), 300);
+      } else if (declineAttempts === 8) {
+        declineBtn.classList.add("decline-dodge");
+        declineBtn.innerHTML =
+          '<i class="ri-close-line text-xl"></i>Thôi được rồi... 😔';
+        declineBtn.style.transform = "scale(0.55)";
+        declineBtn.style.opacity = "0.2";
+        setTimeout(() => declineBtn.classList.remove("decline-dodge"), 500);
+      }
+
+      // Make accept button more attractive with each attempt
+      const glowIntensity = 0.6 + declineAttempts * 0.1;
+      const scale = 1.05 + declineAttempts * 0.02;
+      acceptBtn.style.transform = `scale(${scale})`;
+      acceptBtn.style.boxShadow = `0 0 ${
+        20 + declineAttempts * 5
+      }px rgba(246, 175, 220, ${glowIntensity})`;
+
+      return false;
+    } else {
+      // Allow click after 8 attempts
+      showResponse("decline");
+    }
+  }
+
+  declineBtn.addEventListener("click", handleDeclineClick);
+  declineBtn.addEventListener(
+    "touchend",
+    function (e) {
+      e.preventDefault();
+      handleDeclineClick(e);
+    },
+    { passive: false }
+  );
 
   function showResponse(type) {
     let content = "";
     if (type === "accept") {
       content = `
         <div class="text-center">
-          <div class="text-6xl md:text-8xl mb-6">🎉</div>
-          <h2 class="text-3xl md:text-5xl font-bold text-white mb-6 drop-shadow-lg">Tuyệt vời!</h2>
+          <h2 class="text-3xl md:text-5xl font-bold text-white mb-6 drop-shadow-lg" style="font-family: 'Camiro', serif;">Cảm ơn em người anh iu!</h2>
           <p class="text-lg md:text-2xl text-white mb-8 drop-shadow-lg px-4">
-            Cảm ơn bạn đã cho mình cơ hội để đến gần hơn một chút.
-Mình tin rằng… đây không chỉ là một lời đồng ý, mà là khởi đầu cho điều gì đó thật đẹp 💗
-Mình rất mong được đồng hành cùng bạn – dù là từng bước nhỏ thôi cũng được.
+            Cảm ơn em đã cho anh cơ hội để đến gần hơn một chút.
+Anh tin rằng… đây không chỉ là một lời đồng ý, mà là khởi đầu cho điều gì đó thật đẹp 💗
+Anh rất mong được đồng hành cùng em trong suốt cuộc đời – dù là từng bước nhỏ thôi cũng được.
 
 
           </p>
@@ -218,8 +362,7 @@ Mình rất mong được đồng hành cùng bạn – dù là từng bước n
     } else {
       content = `
         <div class="text-center">
-          <div class="text-6xl md:text-8xl mb-6">🤗</div>
-          <h2 class="text-3xl md:text-5xl font-bold text-white mb-6 drop-shadow-lg">Không sao đâu!</h2>
+          <h2 class="text-3xl md:text-5xl font-bold text-white mb-6 drop-shadow-lg" style="font-family: 'Camiro', serif;">Không sao đâu!</h2>
           <p class="text-lg md:text-2xl text-white mb-8 drop-shadow-lg px-4">
             Cảm ơn bạn vì sự chân thành.
 Mình trân trọng cảm xúc của bạn và vẫn rất mong có thể làm bạn tốt của nhau 😊
