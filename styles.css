@@ -527,7 +527,9 @@ body {
 /* Photobooth Styles */
 .photobooth-section {
   max-width: 400px;
-  margin: 0 auto;
+  margin: 2rem auto;
+  position: relative;
+  z-index: 50;
 }
 
 .photobooth-frame {
@@ -536,6 +538,8 @@ body {
   border-radius: 20px;
   padding: 20px;
   backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 51;
 }
 
 .photobooth-media {
@@ -606,6 +610,62 @@ body {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 105, 180, 0.3));
 }
 
+.glass-button-submit {
+  background: linear-gradient(135deg, rgba(255, 105, 180, 0.6), rgba(255, 20, 147, 0.6));
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 16px 32px;
+  font-size: 18px;
+  font-weight: 600;
+  backdrop-filter: blur(25px);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(255, 105, 180, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  animation: submit-glow 2s ease-in-out infinite alternate;
+}
+
+.glass-button-submit::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.6s;
+}
+
+.glass-button-submit:hover {
+  transform: translateY(-3px) scale(1.02);
+  background: linear-gradient(135deg, rgba(255, 105, 180, 0.8), rgba(255, 20, 147, 0.8));
+  box-shadow: 0 15px 45px rgba(255, 105, 180, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.glass-button-submit:hover::before {
+  left: 100%;
+}
+
+.glass-button-submit:active {
+  transform: translateY(-1px) scale(0.98);
+  box-shadow: 0 8px 25px rgba(255, 105, 180, 0.4);
+}
+
+@keyframes submit-glow {
+  0% {
+    box-shadow: 0 8px 32px rgba(255, 105, 180, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 0 20px rgba(255, 105, 180, 0.4);
+  }
+  100% {
+    box-shadow: 0 8px 32px rgba(255, 105, 180, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 0 35px rgba(255, 105, 180, 0.7);
+  }
+}
+
 .countdown-overlay {
   position: absolute;
   top: 0;
@@ -634,9 +694,21 @@ body {
   100% { transform: scale(1); opacity: 1; }
 }
 
+.photobooth-controls {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  position: relative;
+  z-index: 52;
+}
+
 .photo-reactions {
   margin-top: 15px;
   text-align: center;
+  position: relative;
+  z-index: 53;
 }
 
 .reactions-list {
@@ -758,5 +830,36 @@ body {
   
   .glass-form {
     padding: 1.5rem;
+  }
+  
+  .photobooth-section {
+    max-width: 350px;
+    margin: 1rem auto;
+  }
+  
+  .photobooth-frame {
+    padding: 15px;
+  }
+  
+  .photobooth-media {
+    height: 200px;
+  }
+  
+  .photo-placeholder {
+    height: 200px;
+  }
+  
+  .photobooth-controls {
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  
+  .glass-button-primary,
+  .glass-button-secondary {
+    padding: 10px 16px;
+    font-size: 14px;
+    min-width: auto;
+    flex: 1;
+    max-width: 150px;
   }
 }
