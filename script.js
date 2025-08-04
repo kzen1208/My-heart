@@ -429,6 +429,151 @@ Mình trân trọng cảm xúc của bạn và vẫn rất mong có thể làm b
     }, 300);
   }
 }
+function initPhotobooth() {
+  const startCameraBtn = document.getElementById("start-camera-btn");
+  const takePhotoBtn = document.getElementById("take-photo-btn");
+  const retakePhotoBtn = document.getElementById("retake-photo-btn");
+  const downloadPhotoBtn = document.getElementById("download-photo-btn");
+
+  if (startCameraBtn) {
+    startCameraBtn.addEventListener("click", startFriendCamera);
+    startCameraBtn.addEventListener(
+      "touchend",
+      function (e) {
+        e.preventDefault();
+        startFriendCamera();
+      },
+      { passive: false }
+    );
+  }
+
+  if (takePhotoBtn) {
+    takePhotoBtn.addEventListener("click", takeFriendPhoto);
+    takePhotoBtn.addEventListener(
+      "touchend",
+      function (e) {
+        e.preventDefault();
+        takeFriendPhoto();
+      },
+      { passive: false }
+    );
+  }
+
+  if (retakePhotoBtn) {
+    retakePhotoBtn.addEventListener("click", retakeFriendPhoto);
+    retakePhotoBtn.addEventListener(
+      "touchend",
+      function (e) {
+        e.preventDefault();
+        retakeFriendPhoto();
+      },
+      { passive: false }
+    );
+  }
+
+  if (downloadPhotoBtn) {
+    downloadPhotoBtn.addEventListener("click", downloadFriendPhoto);
+    downloadPhotoBtn.addEventListener(
+      "touchend",
+      function (e) {
+        e.preventDefault();
+        downloadFriendPhoto();
+      },
+      { passive: false }
+    );
+  }
+}
+
+let friendStream = null;
+let friendPhotoData = null;
+
+function startFriendCamera() {
+  const video = document.getElementById("camera-video");
+  const preview = document.getElementById("photo-preview");
+  const startBtn = document.getElementById("start-camera-btn");
+  const takeBtn = document.getElementById("take-photo-btn");
+
+  navigator.mediaDevices
+    .getUserMedia({
+      video: {
+        facingMode: "user",
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+      },
+    })
+    .then((mediaStream) => {
+      friendStream = mediaStream;
+      video.srcObject = mediaStream;
+      video.style.display = "block";
+      preview.style.display = "none";
+      startBtn.style.display = "none";
+      takeBtn.style.display = "inline-block";
+    })
+    .catch((err) => {
+      alert("Không thể truy cập camera: " + err.message);
+    });
+}
+
+function takeFriendPhoto() {
+  const video = document.getElementById("camera-video");
+  const canvas = document.getElementById("photo-canvas");
+  const preview = document.getElementById("photo-preview");
+  const takeBtn = document.getElementById("take-photo-btn");
+  const retakeBtn = document.getElementById("retake-photo-btn");
+  const downloadBtn = document.getElementById("download-photo-btn");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  ctx.drawImage(video, 0, 0);
+
+  friendPhotoData = canvas.toDataURL("image/png");
+
+  video.style.display = "none";
+  preview.style.display = "flex";
+  preview.innerHTML = `<img src="${friendPhotoData}" alt="Ảnh kỷ niệm" class="photobooth-media">`;
+
+  takeBtn.style.display = "none";
+  retakeBtn.style.display = "inline-block";
+  downloadBtn.style.display = "inline-block";
+
+  if (friendStream) {
+    friendStream.getTracks().forEach((track) => track.stop());
+    friendStream = null;
+  }
+}
+
+function retakeFriendPhoto() {
+  const preview = document.getElementById("photo-preview");
+  const startBtn = document.getElementById("start-camera-btn");
+  const retakeBtn = document.getElementById("retake-photo-btn");
+  const downloadBtn = document.getElementById("download-photo-btn");
+
+  preview.style.display = "flex";
+  preview.innerHTML = `
+    <div class="placeholder-content">
+      <i class="ri-camera-line text-4xl mb-2 opacity-60"></i>
+      <p class="text-sm opacity-80">Chụp ảnh kỷ niệm bạn bè</p>
+    </div>
+  `;
+
+  startBtn.style.display = "inline-block";
+  retakeBtn.style.display = "none";
+  downloadBtn.style.display = "none";
+  friendPhotoData = null;
+}
+
+function downloadFriendPhoto() {
+  if (friendPhotoData) {
+    const link = document.createElement("a");
+    link.download = `ban-be-ky-niem-${
+      new Date().toISOString().split("T")[0]
+    }.png`;
+    link.href = friendPhotoData;
+    link.click();
+  }
+}
+
 function showFriendPhotobooth() {
   const responseContent = document.getElementById("response-content");
   const photobooth = `
@@ -470,7 +615,7 @@ function showFriendPhotobooth() {
       </div>
     </div>
   `;
-  
+
   responseContent.innerHTML = photobooth;
   initPhotobooth();
 }
@@ -505,8 +650,9 @@ function showLoverForm() {
           <textarea class="form-input form-textarea" placeholder="Em mong muốn điều gì trong tương lai?..." rows="2" required></textarea>
         </div>
         
-        <button type="submit" class="glass-button w-full mt-4" style="background: linear-gradient(135deg, rgba(255, 105, 180, 0.4), rgba(255, 20, 147, 0.4));">
-          Gửi thông tin
+        <button type="submit" class="glass-button-submit w-full mt-4">
+          <i class="ri-send-plane-fill"></i>
+          Gửi thông tin 
         </button>
       </form>
     </div>
@@ -519,25 +665,25 @@ function showLoverForm() {
 }
 
 // Data storage
-let loverData = JSON.parse(localStorage.getItem('loverData')) || [];
+let loverData = JSON.parse(localStorage.getItem("loverData")) || [];
 
 function handleFormSubmit(e) {
   e.preventDefault();
   const form = e.target;
-  
+
   // Collect form data
   const data = {
     name: form.querySelector('input[type="text"]').value,
     birthDate: form.querySelector('input[type="date"]').value,
-    hobbies: form.querySelector('textarea:first-of-type').value,
-    dreams: form.querySelector('textarea:last-of-type').value,
-    submittedAt: new Date().toLocaleString('vi-VN')
+    hobbies: form.querySelector("textarea:first-of-type").value,
+    dreams: form.querySelector("textarea:last-of-type").value,
+    submittedAt: new Date().toLocaleString("vi-VN"),
   };
-  
+
   // Save to localStorage
   loverData.push(data);
-  localStorage.setItem('loverData', JSON.stringify(loverData));
-  
+  localStorage.setItem("loverData", JSON.stringify(loverData));
+
   const responseContent = document.getElementById("response-content");
 
   const successContent = `
@@ -598,40 +744,46 @@ function handleFormSubmit(e) {
 
 function exportToExcel() {
   if (loverData.length === 0) {
-    alert('Không có dữ liệu để xuất!');
+    alert("Không có dữ liệu để xuất!");
     return;
   }
-  
+
   // Create worksheet
-  const ws = XLSX.utils.json_to_sheet(loverData.map(item => ({
-    'Tên': item.name,
-    'Ngày sinh': item.birthDate,
-    'Sở thích': item.hobbies,
-    'Mơ ước': item.dreams,
-    'Thời gian gửi': item.submittedAt
-  })));
-  
+  const ws = XLSX.utils.json_to_sheet(
+    loverData.map((item) => ({
+      Tên: item.name,
+      "Ngày sinh": item.birthDate,
+      "Sở thích": item.hobbies,
+      "Mơ ước": item.dreams,
+      "Thời gian gửi": item.submittedAt,
+    }))
+  );
+
   // Create workbook
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Thông tin người yêu');
-  
+  XLSX.utils.book_append_sheet(wb, ws, "Thông tin người yêu");
+
   // Export file
-  XLSX.writeFile(wb, `thong-tin-nguoi-yeu-${new Date().toISOString().split('T')[0]}.xlsx`);
+  XLSX.writeFile(
+    wb,
+    `thong-tin-nguoi-yeu-${new Date().toISOString().split("T")[0]}.xlsx`
+  );
 }
 let stream = null;
 
 function startCamera() {
-  const video = document.getElementById('camera-video');
-  const preview = document.getElementById('photo-preview');
-  const photoBtn = document.getElementById('photo-btn');
-  
-  navigator.mediaDevices.getUserMedia({ video: true })
-    .then(mediaStream => {
+  const video = document.getElementById("camera-video");
+  const preview = document.getElementById("photo-preview");
+  const photoBtn = document.getElementById("photo-btn");
+
+  navigator.mediaDevices
+    .getUserMedia({ video: true })
+    .then((mediaStream) => {
       stream = mediaStream;
       video.srcObject = stream;
-      video.style.display = 'block';
-      preview.style.display = 'none';
-      
+      video.style.display = "block";
+      preview.style.display = "none";
+
       photoBtn.innerHTML = `
         <div class="flex gap-2">
           <button onclick="startCountdown()" class="glass-button-primary">
@@ -643,72 +795,72 @@ function startCamera() {
         </div>
       `;
     })
-    .catch(err => {
-      alert('Không thể truy cập camera: ' + err.message);
+    .catch((err) => {
+      alert("Không thể truy cập camera: " + err.message);
     });
 }
 
 function startCountdown() {
-  const countdown = document.getElementById('countdown-overlay');
-  const countdownNumber = countdown.querySelector('.countdown-number');
+  const countdown = document.getElementById("countdown-overlay");
+  const countdownNumber = countdown.querySelector(".countdown-number");
   let count = 3;
-  
-  countdown.style.display = 'flex';
-  
+
+  countdown.style.display = "flex";
+
   const countInterval = setInterval(() => {
     countdownNumber.textContent = count;
-    countdownNumber.style.animation = 'none';
+    countdownNumber.style.animation = "none";
     setTimeout(() => {
-      countdownNumber.style.animation = 'countdown-pulse 1s ease-in-out';
+      countdownNumber.style.animation = "countdown-pulse 1s ease-in-out";
     }, 10);
-    
+
     count--;
-    
+
     if (count < 0) {
       clearInterval(countInterval);
-      countdown.style.display = 'none';
+      countdown.style.display = "none";
       takePhoto();
     }
   }, 1000);
 }
 
 function takePhoto() {
-  const video = document.getElementById('camera-video');
-  const canvas = document.getElementById('photo-canvas');
-  const preview = document.getElementById('photo-preview');
-  const photoBtn = document.getElementById('photo-btn');
-  const ctx = canvas.getContext('2d');
-  
+  const video = document.getElementById("camera-video");
+  const canvas = document.getElementById("photo-canvas");
+  const preview = document.getElementById("photo-preview");
+  const photoBtn = document.getElementById("photo-btn");
+  const ctx = canvas.getContext("2d");
+
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
-  
+
   // Apply skin smoothing filter
-  ctx.filter = 'blur(0.5px) brightness(1.1) contrast(0.9) saturate(1.1)';
+  ctx.filter = "blur(0.5px) brightness(1.1) contrast(0.9) saturate(1.1)";
   ctx.drawImage(video, 0, 0);
-  
+
   // Additional skin smoothing effect
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const data = imageData.data;
-  
+
   for (let i = 0; i < data.length; i += 4) {
     // Soften skin tones (reduce red intensity slightly)
     data[i] = Math.min(255, data[i] * 0.95 + 10); // Red
     data[i + 1] = Math.min(255, data[i + 1] * 0.98 + 5); // Green
     data[i + 2] = Math.min(255, data[i + 2] * 1.02); // Blue
   }
-  
+
   ctx.putImageData(imageData, 0, 0);
-  const photoData = canvas.toDataURL('image/png');
-  
-  video.style.display = 'none';
-  preview.style.display = 'flex';
+  const photoData = canvas.toDataURL("image/png");
+
+  video.style.display = "none";
+  preview.style.display = "flex";
   preview.innerHTML = `
     <img src="${photoData}" alt="Ảnh kỷ niệm" class="photobooth-media">
   `;
-  
+
   // Show success notification
   showPhotoSuccess();
-  
+
   photoBtn.innerHTML = `
     <div class="flex gap-2 justify-center">
       <button onclick="downloadPhoto('${photoData}')" class="glass-button-primary">
@@ -719,65 +871,65 @@ function takePhoto() {
       </button>
     </div>
   `;
-  
+
   // Show reactions
-  document.getElementById('photo-reactions').style.display = 'block';
-  
+  document.getElementById("photo-reactions").style.display = "block";
+
   stopCamera();
 }
 
 function closeCamera() {
-  const video = document.getElementById('camera-video');
-  const preview = document.getElementById('photo-preview');
-  const photoBtn = document.getElementById('photo-btn');
-  
+  const video = document.getElementById("camera-video");
+  const preview = document.getElementById("photo-preview");
+  const photoBtn = document.getElementById("photo-btn");
+
   if (stream) {
-    stream.getTracks().forEach(track => track.stop());
+    stream.getTracks().forEach((track) => track.stop());
     stream = null;
   }
-  
-  video.style.display = 'none';
-  preview.style.display = 'flex';
+
+  video.style.display = "none";
+  preview.style.display = "flex";
   preview.innerHTML = `
     <div class="placeholder-content">
       <i class="ri-camera-line text-4xl mb-2 opacity-60"></i>
       <p class="text-sm opacity-80">Chụp ảnh kỷ niệm của chúng ta</p>
     </div>
   `;
-  
+
   photoBtn.innerHTML = `
     <button onclick="startCamera()" class="glass-button-primary">
       <i class="ri-camera-fill mr-2"></i>Chụp ảnh kỷ niệm
     </button>
   `;
-  
-  document.getElementById('photo-reactions').style.display = 'none';
+
+  document.getElementById("photo-reactions").style.display = "none";
 }
 
 function stopCamera() {
   if (stream) {
-    stream.getTracks().forEach(track => track.stop());
+    stream.getTracks().forEach((track) => track.stop());
     stream = null;
   }
 }
 
 function resetCamera() {
-  const preview = document.getElementById('photo-preview');
-  preview.style.display = 'flex';
+  const preview = document.getElementById("photo-preview");
+  preview.style.display = "flex";
   preview.innerHTML = `
     <div class="placeholder-content">
       <i class="ri-camera-line text-4xl mb-2 opacity-60"></i>
       <p class="text-sm opacity-80">Chụp ảnh kỷ niệm của chúng ta</p>
     </div>
   `;
-  document.getElementById('photo-reactions').style.display = 'none';
+  document.getElementById("photo-reactions").style.display = "none";
   stopCamera();
   startCamera();
 }
 
 function showPhotoSuccess() {
-  const notification = document.createElement('div');
-  notification.className = 'success-notification';
+  const notification = document.createElement("div");
+  notification.className = "success-notification";
   notification.style.cssText = `
     position: fixed;
     top: 50%;
@@ -793,17 +945,17 @@ function showPhotoSuccess() {
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.3);
   `;
-  notification.innerHTML = '📸 Chụp ảnh thành công! 💕';
-  
+  notification.innerHTML = "📸 Chụp ảnh thành công! 💕";
+
   document.body.appendChild(notification);
-  
+
   setTimeout(() => {
     notification.remove();
   }, 2000);
 }
 
 function addReaction(emoji) {
-  const reaction = document.createElement('div');
+  const reaction = document.createElement("div");
   reaction.style.cssText = `
     position: fixed;
     font-size: 30px;
@@ -812,73 +964,21 @@ function addReaction(emoji) {
     animation: reaction-float 2s ease-out forwards;
   `;
   reaction.textContent = emoji;
-  
+
   const rect = event.target.getBoundingClientRect();
-  reaction.style.left = rect.left + 'px';
-  reaction.style.top = rect.top + 'px';
-  
+  reaction.style.left = rect.left + "px";
+  reaction.style.top = rect.top + "px";
+
   document.body.appendChild(reaction);
-  
+
   setTimeout(() => {
     reaction.remove();
   }, 2000);
 }
 
 function downloadPhoto(dataUrl) {
-  const link = document.createElement('a');
-  link.download = `anh-yeu-em-${new Date().toISOString().split('T')[0]}.png`;
+  const link = document.createElement("a");
+  link.download = `anh-yeu-em-${new Date().toISOString().split("T")[0]}.png`;
   link.href = dataUrl;
   link.click();
-}
-function showFriendPhotobooth() {
-  const responseContent = document.getElementById("response-content");
-  
-  const friendContent = `
-    <div class="text-center">
-      <div class="glass-notification success-notification">
-        <h3 class="text-2xl font-bold text-white mb-4" style="font-family: 'Camiro', serif;">Cảm ơn bạn!</h3>
-        <p class="text-lg text-white mb-4">
-          Dù không thể là người yêu nhưng chúng ta vẫn có thể là những người bạn tốt
-        </p>
-        <div class="text-sm text-white opacity-80 mb-6">
-          Hãy chụp một tấm ảnh kỷ niệm tình bạn đẹp của chúng ta nhé!
-        </div>
-        
-        <div class="photobooth-section mb-6">
-          <div class="photobooth-frame">
-            <video id="camera-video" class="photobooth-media" autoplay playsinline style="display: none;"></video>
-            <canvas id="photo-canvas" class="photobooth-media" style="display: none;"></canvas>
-            <div id="countdown-overlay" class="countdown-overlay" style="display: none;">
-              <div class="countdown-number">3</div>
-            </div>
-            <div id="photo-preview" class="photo-placeholder">
-              <div class="placeholder-content">
-                <i class="ri-camera-line text-4xl mb-2 opacity-60"></i>
-                <p class="text-sm opacity-80">Chụp ảnh kỷ niệm tình bạn</p>
-              </div>
-            </div>
-          </div>
-          
-          <div class="photobooth-controls mt-4">
-            <button id="photo-btn" onclick="startCamera()" class="glass-button-primary">
-              <i class="ri-camera-fill mr-2"></i>Chụp ảnh kỷ niệm
-            </button>
-          </div>
-          
-          <div id="photo-reactions" class="photo-reactions" style="display: none;">
-            <div class="reactions-list">
-              <span class="reaction" onclick="addReaction('😊')">😊</span>
-              <span class="reaction" onclick="addReaction('🤝')">🤝</span>
-              <span class="reaction" onclick="addReaction('👫')">👫</span>
-              <span class="reaction" onclick="addReaction('💛')">💛</span>
-              <span class="reaction" onclick="addReaction('😄')">😄</span>
-              <span class="reaction" onclick="addReaction('🌟')">🌟</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-  
-  responseContent.innerHTML = friendContent;
 }
