@@ -573,41 +573,81 @@ body {
 .glass-button-primary {
   background: linear-gradient(135deg, rgba(255, 105, 180, 0.4), rgba(255, 20, 147, 0.4));
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 15px;
-  padding: 12px 24px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 14px 28px;
   font-size: 16px;
-  font-weight: 500;
-  backdrop-filter: blur(20px);
-  transition: all 0.3s ease;
+  font-weight: 600;
+  backdrop-filter: blur(25px);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(255, 105, 180, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.glass-button-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s;
 }
 
 .glass-button-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(255, 105, 180, 0.3);
+  transform: translateY(-3px) scale(1.02);
+  background: linear-gradient(135deg, rgba(255, 105, 180, 0.6), rgba(255, 20, 147, 0.6));
+  box-shadow: 0 15px 45px rgba(255, 105, 180, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.glass-button-primary:hover::before {
+  left: 100%;
 }
 
 .glass-button-secondary {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 105, 180, 0.2));
   color: white;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 15px;
-  padding: 10px 20px;
+  border-radius: 20px;
+  padding: 12px 24px;
   font-size: 14px;
   font-weight: 500;
   backdrop-filter: blur(20px);
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.glass-button-secondary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  transition: left 0.6s;
 }
 
 .glass-button-secondary:hover {
-  transform: translateY(-1px);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 105, 180, 0.3));
+  transform: translateY(-2px) scale(1.01);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 105, 180, 0.3));
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.glass-button-secondary:hover::before {
+  left: 100%;
 }
 
 .glass-button-submit {
@@ -861,5 +901,22 @@ body {
     min-width: auto;
     flex: 1;
     max-width: 150px;
+  }
+  
+  .form-input {
+    padding: 12px 16px;
+    font-size: 16px;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+  
+  .form-input[type="date"] {
+    padding: 12px 12px;
+    min-height: 48px;
+    background-size: 20px;
+    background-position: right 12px center;
+    background-repeat: no-repeat;
   }
 }
